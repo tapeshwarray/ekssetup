@@ -2,7 +2,6 @@ provider "aws" {
   region = var.aws_region
 }
 
-
 resource "aws_eks_cluster" "aws_eks" {
   name     = var.aws_eks_cluster
   role_arn = aws_iam_role.eks_cluster.arn
@@ -72,4 +71,22 @@ resource "aws_security_group" "sg" {
   egress  = []
 }
 
+data "aws_eks_cluster" "cluster" {
+  name = aws_eks_cluster.aws_eks.name
+}
 
+data "aws_eks_cluster_auth" "cluster" {
+  name = aws_eks_cluster.aws_eks.name
+}
+
+provider "kubernetes" {
+  host                   = data.aws_eks_cluster.cluster.endpoint
+  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
+  token                  = data.aws_eks_cluster_auth.cluster.token
+}
+
+resource "kubernetes_namespace" "example" {
+  metadata {
+    name = var.kubernetes_namespace
+  }
+}
