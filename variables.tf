@@ -57,4 +57,7 @@ variable "node_group_max_size" {
   type        = number
 }
 
-
+variable "kubernetes_namespace" {
+  description = "The name of the namespace"
+  type        = string
+}
